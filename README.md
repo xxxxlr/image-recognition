@@ -1,8 +1,8 @@
 # SETUP
 
 ## Prerequisite(tested)
-node version: 5.0.0
-OS: Mac
+- node version: 5.0.0
+- OS: Mac
 
 ## Dependencies
 ```
