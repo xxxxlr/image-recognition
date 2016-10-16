@@ -3,7 +3,7 @@ var ImgService = require('./imageService');
 var http = require('http');
 var fs = require('fs');
 //Lets define a port we want to listen to
-const PORT=8080;
+const PORT=4001;
 
 //We need a function which handles requests and send response
 function handleRequest(request, response){
@@ -26,20 +26,22 @@ function handleRequest(request, response){
     request.on('error', console.error);
     
     request.on('end', function(req, res){
-        var outDir= './output/z';
-
-
+        var outDir= './output/';
         console.log('base 64 raw content:');
-        console.log(content.slice(0,3));
+        console.log(content.length > 0 ? content.slice(0,3): content = "");
         
         fs.writeFile(outDir + 'content.jpg', content, 'base64', function(err){
             console.log('content error:', err);
             console.log('Calling ImgService:');
+            
+            //==============
             var imgService = new ImgService({imgPath: outDir + 'content.jpg'});
             imgService.reqRecogApi(function(result){
                 response.write(result);
                 response.end();
             });
+           //==============
+            
         })
 
         /*

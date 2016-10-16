@@ -1,0 +1,26 @@
+{
+  "name": "image-recognition",
+  "version": "1.0.0",
+  "description": "- node version: 5.0.0\r - OS: Mac",
+  "main": "server.js",
+  "dependencies": {
+    "gm": "^1.23.0",
+    "google-cloud": "^0.41.2",
+    "underscore": "^1.8.3"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/xxxxlr/image-recognition.git"
+  },
+  "author": "Ran Li",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/xxxxlr/image-recognition/issues"
+  },
+  "homepage": "https://github.com/xxxxlr/image-recognition#readme"
+}

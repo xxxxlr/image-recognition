@@ -59,13 +59,16 @@ ImgService.prototype = _.extend(ImgService.prototype, {
 function detectLabels (inputFile, callback) {
     console.log(`Sending ${inputFile} to google vision API...`)
     // Make a call to the Vision API to detect the labels
+    //console.log('Moking API return:');
+    //return callback('Mock anaylysis results');
     vision.detectLabels(inputFile, { verbose: true }, function (err, labels) {
         if (err) {
             return callback(err);
         }
         console.log('API results:', JSON.stringify(labels, null, 2));
-        console.log('Response to Hololens:', labels[0].desc);
-        callback(labels[0].desc);
+        var result = labels.length ? labels[0].desc : "???"
+        console.log('Response to Hololens:',result);
+        callback(result);
     });
 }
 //====================================================
