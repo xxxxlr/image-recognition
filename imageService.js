@@ -34,7 +34,7 @@ ImgService.prototype = _.extend(ImgService.prototype, {
             return imgPath;
         })
         .then(function(imgPath){
-            return generateResizedImage(imgPath, './result/resize.png', 'LABLE_DETECTION');
+            return generateResizedImage(imgPath, `./result/${new Date().getTime()}resize.png`, 'LABLE_DETECTION');
         })
         .then(function(resizedImgPath){
             return getSize(resizedImgPath)

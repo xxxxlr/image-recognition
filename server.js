@@ -28,14 +28,41 @@ function handleRequest(request, response){
     request.on('end', function(req, res){
         var outDir= './output/';
         console.log('base 64 raw content:');
-        console.log(content.length > 0 ? content.slice(0,3): content = "");
+        console.log(content.length > 0 ? content.slice(0,4): content = "");
         
-        fs.writeFile(outDir + 'content.jpg', content, 'base64', function(err){
+
+        var bufferedContent = new Buffer(content, 'binary');
+        console.log('buffered content:');
+        var len = bufferedContent.length;
+        console.log(bufferedContent.slice(0,4));
+
+//==================
+var ReturnMockAPI = false;
+if(ReturnMockAPI){
+        response.write("mock return");
+        response.end();
+        return;
+}
+//==================
+
+        fs.writeFile(outDir + 'bufferedContent.png', bufferedContent, 'binary', function(err){
+            //==============
+            var imgService = new ImgService({imgPath: outDir + 'bufferedContent.png'});
+            imgService.reqRecogApi(function(result){
+                response.write(result);
+                response.end();
+            });
+           //==============
+            console.log('bufferedContent error:', err);
+        })   
+
+        /*==================base64==================
+        fs.writeFile(outDir + 'content.png', content, 'base64', function(err){
             console.log('content error:', err);
             console.log('Calling ImgService:');
             
             //==============
-            var imgService = new ImgService({imgPath: outDir + 'content.jpg'});
+            var imgService = new ImgService({imgPath: outDir + 'content.png'});
             imgService.reqRecogApi(function(result){
                 response.write(result);
                 response.end();
@@ -43,6 +70,8 @@ function handleRequest(request, response){
            //==============
             
         })
+    */
+
 
         /*
          
@@ -78,7 +107,6 @@ you can use other encode, just let the receiving side understand how to interper
 
 
 */
-        var bufferedContent = new Buffer(content, 'binary');
 /*
 'abc'
 -> console.log                                                                                                               
@@ -112,16 +140,10 @@ IHDR,y}ud IDATxíwÕ·ßS&(Ì(
 */
       
 
-        console.log('buffered content:');
-        var len = bufferedContent.length;
-        console.log(bufferedContent.slice(0,4));
-        fs.writeFile(outDir + 'bufferedContent.jpg', bufferedContent, 'binary', function(err){
-            console.log('bufferedContent error:', err);
-        })       
 
-        var writeStream = fs.createWriteStream(outDir + 'stream.jpg');
-        writeStream.write(content);
-        writeStream.end();
+        // var writeStream = fs.createWriteStream(outDir + 'stream.png');
+        // writeStream.write(content);
+        // writeStream.end();
 
 
 /*
