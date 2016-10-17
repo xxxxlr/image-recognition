@@ -7,8 +7,22 @@ const PORT=4001;
 
 //We need a function which handles requests and send response
 function handleRequest(request, response){
-    var requestTime = new Date();
-    console.log(`Request ${requestTime.getHours()}:${requestTime.getMinutes()}:${requestTime.getSeconds()} -- ${request.connection.remoteAddress}`);
+        var requestTime = new Date();
+    const HARD_CODE_PATH = `/connection/test1`;
+    //   var uri = url.parse(request.url).pathname
+    // , filename = path.join(process.cwd(), uri);
+
+
+    console.log(`Request ${requestTime.getHours()}:${requestTime.getMinutes()}:${requestTime.getSeconds()} 
+        -- ${request.connection.remoteAddress}
+        -- ${request.url}`);
+
+    if(request.url !== HARD_CODE_PATH){
+        console.log(`Warning: random access to server!`);
+        response.write(`You do not have permission!`);
+        response.end();
+    }
+
     //console.log(request);
     response.writeHead(200, {'Content-Type': 'application/json'});
 

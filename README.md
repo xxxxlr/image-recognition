@@ -21,5 +21,5 @@ $ source .envrc
 
 ## Run it
 ```
-project-root$ node main.js
+project-root$ node server.js
 ```
