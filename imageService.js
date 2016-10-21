@@ -97,7 +97,7 @@ function responseResult(labels, callback){
     if(labels.length){
         var init = '';
         result = labels.reduce(function(acc, cur){
-            return cur.desc + ' ' + acc;
+            return cur.desc + ';' + acc;
         }, init)
     }
     console.log('Response to Hololens:',result);
