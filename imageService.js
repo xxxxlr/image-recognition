@@ -93,7 +93,13 @@ ImgService.prototype = _.extend(ImgService.prototype, {
 });
 
 function responseResult(labels, callback){
-    var result = labels.length ? labels[0].desc : "???"
+    var result = '???';
+    if(labels.length){
+        var init = '';
+        result = labels.reduce(function(acc, cur){
+            return cur.desc + ' ' + acc;
+        }, init)
+    }
     console.log('Response to Hololens:',result);
     callback(result);
 }
