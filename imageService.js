@@ -9,6 +9,7 @@ var _ = require('underscore');
 
 // var imgPath = './img/hololens.jpg';
 var resizedImgPath = './img/resize.png';
+var resizedCropedImgPath = './img/resize_crop.png';
 var imgDir = './img';
 
 
@@ -17,35 +18,74 @@ var ImgService = function(imgsReqOpts){
     this.imgPath = imgsReqOpts ? imgsReqOpts.imgPath : '';
     this.imgBase64 = imgsReqOpts ? imgsReqOpts.imgBase64 : '';
     this.imgFile = imgsReqOpts ? imgsReqOpts.imgFile : '';
+    this.timeFrames = [];
+    this.taskFrames = [];
+}
+function benchmarkTime(task, timeFrames, taskFrames){
+    timeFrames.push(new Date().getTime());
+    taskFrames.push(task);
+    
+    var len = timeFrames.length;
+    if(len > 1){
+        console.log(`${task} time cost-->: ${ timeFrames[timeFrames.length - 1] -  timeFrames[timeFrames.length - 2]} ms` );
+    } else {
+        console.log(`Start from ${task} on timestamp: ${timeFrames[0]}`);
+    }
 }
 
 ImgService.prototype = _.extend(ImgService.prototype, {
+   
     reqRecogApi: function(callback){
+        var requestUniqueId = new Date().getTime();
+        console.log(this);
+        benchmarkTime('start reqRecogApi', this.timeFrames, this.taskFrames);
         if(this.imgPath){
             this.imgFile = fs.readFileSync(this.imgPath);
+            
         } else {
             console.error('Has to use a file path on local disk for now...');
             return;
         }
         var imgPath = this.imgPath;
+        benchmarkTime('fs.readFileSync', this.timeFrames, this.taskFrames);
         // checkImageFileSize(imgFile);
-        getSize(this.imgFile).then(function(value){
-            console.log(`Original: ${imgPath}:  width:${value.width} x height:${value.height}`)
+        getSize(this.imgFile).then((value) => {
+            benchmarkTime('getSize', this.timeFrames, this.taskFrames);
+            console.log(`Original: ${imgPath}:  width:${value.width} x height:${value.height}`);            
             return imgPath;
         })
-        .then(function(imgPath){
-            return generateResizedImage(imgPath, `./result/${new Date().getTime()}resize.png`, 'LABLE_DETECTION');
+        .then((imgPath) => {
+            benchmarkTime('getSize', this.timeFrames, this.taskFrames);
+            return generateResizedImage(imgPath, `./result/${requestUniqueId}resize.png`, 'LABLE_DETECTION');
         })
-        .then(function(resizedImgPath){
+        .then((resizedImgPath) => {
+            benchmarkTime('generateResizedImage', this.timeFrames, this.taskFrames);
             return getSize(resizedImgPath)
                 .then(function(value){
                     console.log(`Re-dimentioned: ${resizedImgPath}:  width:${value.width} x height:${value.height}`)
-                    return resizedImgPath;
+                    var cropOptions = {
+                        imageSrc: resizedImgPath,
+                        imageOutput: resizedCropedImgPath,
+                        x: value.width * 0.25,
+                        y: value.height * 0.25,
+                        width: value.width * 0.5,
+                        height: value.height * 0.5,
+                    };
+                    return cropOptions;
                 })
         })
-        .then(function(resizedImgPath){
-            detectLabels(resizedImgPath, callback);
+        .then((cropOptions) => {
+            benchmarkTime('getSize', this.timeFrames, this.taskFrames);            
+            return cropImage(cropOptions.imageSrc, cropOptions.imageOutput, cropOptions);
         })
+        .then((resizedCropedImgPath) => {
+            benchmarkTime('cropImage', this.timeFrames, this.taskFrames);            
+            detectLabels(resizedCropedImgPath, callback);
+        })
+        // .then(function(){
+        //     console.log('done cropImage');
+        //     benchmarkTime('detectLabels', this.timeFrames, this.taskFrames);            
+        // })
         .catch(function(error){
             console.error(error);
         })
@@ -109,6 +149,20 @@ function generateResizedImage(srcImgPath, targetImgPath, type){
     
 }
 
+function cropImage(imageSrc, imageOutput, cropOptions){
+    return new Promise(function(resolve, reject){
+        gm(imageSrc).crop(cropOptions.width, cropOptions.height, cropOptions.x, cropOptions.y)
+        .write(imageOutput, function (err) {
+            if (!err) {
+                console.log(`Re-croped: ${imageOutput}: width:${cropOptions.width} x height: ${cropOptions.height}` )
+                resolve(imageOutput);
+            } else {
+                reject(`write error when calling generateResizedImage(${imageSrc}, ${imageOutput})`);
+            }
+        });
+    });
+}
+
 function checkImageFileSize(imgPath){
     var stats = fs.statSync(imgPath)
     var fileSizeInBytes = stats['size']
@@ -123,3 +177,4 @@ function checkImageFileSize(imgPath){
 }
 
 module.exports = ImgService;
+

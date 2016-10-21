@@ -23,3 +23,8 @@ $ source .envrc
 ```
 project-root$ node server.js
 ```
+
+## Troubleshot:
+error: google api complain: first parameter should either be a string or a buffer, with the auth session.
+
+solution: check internet connection.
