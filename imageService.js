@@ -80,18 +80,23 @@ ImgService.prototype = _.extend(ImgService.prototype, {
         })
         .then((resizedCropedImgPath) => {
             benchmarkTime('cropImage', this.timeFrames, this.taskFrames);            
-            detectLabels(resizedCropedImgPath, callback);
+            return detectLabels(resizedCropedImgPath);
         })
-        // .then(function(){
-        //     console.log('done cropImage');
-        //     benchmarkTime('detectLabels', this.timeFrames, this.taskFrames);            
-        // })
+        .then((detectedResults) => {
+            benchmarkTime('detectLabels', this.timeFrames, this.taskFrames);      
+            responseResult(detectedResults, callback);
+        })
         .catch(function(error){
             console.error(error);
         })
     }
 });
 
+function responseResult(labels, callback){
+    var result = labels.length ? labels[0].desc : "???"
+    console.log('Response to Hololens:',result);
+    callback(result);
+}
 
 /**
  * Uses the Vision API to detect labels in the given file.
@@ -101,15 +106,18 @@ function detectLabels (inputFile, callback) {
     // Make a call to the Vision API to detect the labels
     //console.log('Moking API return:');
     //return callback('Mock anaylysis results');
-    vision.detectLabels(inputFile, { verbose: true }, function (err, labels) {
-        if (err) {
-            return callback(err);
-        }
-        console.log('API results:', JSON.stringify(labels, null, 2));
-        var result = labels.length ? labels[0].desc : "???"
-        console.log('Response to Hololens:',result);
-        callback(result);
-    });
+    return new Promise((resolve, reject) => {
+        vision.detectLabels(inputFile, { verbose: true }, function (err, labels) {
+            if (err) {
+                console.error('vision API Error:', err);
+                reject(err);
+            } else {
+                console.log('API results:', JSON.stringify(labels, null, 2));
+                resolve(labels)
+            }
+        }); 
+    })
+    
 }
 //====================================================
 function getSize(imgPath){
