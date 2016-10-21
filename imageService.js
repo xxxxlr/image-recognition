@@ -99,6 +99,12 @@ function responseResult(labels, callback){
         result = labels.reduce(function(acc, cur){
             return cur.desc + ';' + acc;
         }, init)
+        //TODO: for demo constrain:
+        if(result.includes('coca')){
+            result = 'coca';
+        } else {
+            result = labels[0].desc;
+        }
     }
     console.log('Response to Hololens:',result);
     callback(result);
