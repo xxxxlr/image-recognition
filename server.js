@@ -73,7 +73,7 @@ function handleRequest(request, response){
                             response.write(result);
                             response.end();
                         });
-                    }, 3000);
+                    }, 0);
                 }
                 
             } catch (error){

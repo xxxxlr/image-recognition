@@ -107,7 +107,7 @@ function responseResult(labels, callback){
         //TODO: for demo constrain:
         if(result.includes('coca')){
             result = 'coca';
-        } else if(result.includes('bottle')){
+        } else if(result.includes('bottle') || result.includes('glass')){
             result = 'water';
         } else {
             result = labels[0].desc;
