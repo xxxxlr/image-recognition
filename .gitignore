@@ -3,4 +3,6 @@ node_modules
 .idea
 .DS_Store
 output
-result
+upload
+temp
+debug.log

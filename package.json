@@ -4,6 +4,7 @@
   "description": "- node version: 5.0.0\r - OS: Mac",
   "main": "server.js",
   "dependencies": {
+    "formidable": "^1.0.17",
     "gm": "^1.23.0",
     "google-cloud": "^0.41.2",
     "underscore": "^1.8.3"

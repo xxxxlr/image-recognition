@@ -7,9 +7,7 @@ var vision = Vision();
 var _ = require('underscore');
 
 
-// var imgPath = './img/hololens.jpg';
-var resizedImgPath = './img/resize.png';
-var resizedCropedImgPath = './img/resize_crop.png';
+var RESIZED_CROPED_IMG_DIR = './resized_croped_img';
 var imgDir = './img';
 
 
@@ -35,7 +33,7 @@ function benchmarkTime(task, timeFrames, taskFrames){
 
 ImgService.prototype = _.extend(ImgService.prototype, {
    
-    reqRecogApi: function(callback){
+    reqRecogApi: function(callback, cropOptions){
         var requestUniqueId = new Date().getTime();
         console.log(this);
         benchmarkTime('start reqRecogApi', this.timeFrames, this.taskFrames);
@@ -56,20 +54,26 @@ ImgService.prototype = _.extend(ImgService.prototype, {
         })
         .then((imgPath) => {
             benchmarkTime('getSize', this.timeFrames, this.taskFrames);
-            return generateResizedImage(imgPath, `./result/${requestUniqueId}resize.png`, 'LABLE_DETECTION');
+            return imgPath;
+            //TODO: remove resize image to speed it up. After testing, seems working ok.
+            //return generateResizedImage(imgPath, `./upload/${requestUniqueId}-resize.png`, 'LABLE_DETECTION');
         })
         .then((resizedImgPath) => {
             benchmarkTime('generateResizedImage', this.timeFrames, this.taskFrames);
             return getSize(resizedImgPath)
                 .then(function(value){
-                    console.log(`Re-dimentioned: ${resizedImgPath}:  width:${value.width} x height:${value.height}`)
+                    console.log(`Re-dimentioned: ${resizedImgPath}:  width:${value.width} x height:${value.height}`);
+                    var cropedHeight = value.height * 0.4;
+                    var cropedWidth = value.width * 0.25;
+                    var leftTopX = (value.width - cropedWidth)/2;
+                    var leftTopY = (value.height - cropedWidth)/2 * 1.1;
                     var cropOptions = {
                         imageSrc: resizedImgPath,
-                        imageOutput: resizedCropedImgPath,
-                        x: value.width * 0.25,
-                        y: value.height * 0.25,
-                        width: value.width * 0.5,
-                        height: value.height * 0.5,
+                        imageOutput: `upload/${requestUniqueId}-resize-crop.png`,
+                        x: leftTopX,
+                        y: leftTopY,
+                        width: cropedWidth,
+                        height: cropedHeight,
                     };
                     return cropOptions;
                 })
@@ -88,6 +92,7 @@ ImgService.prototype = _.extend(ImgService.prototype, {
         })
         .catch(function(error){
             console.error(error);
+            callback('Failed to process images');
         })
     }
 });
@@ -102,6 +107,8 @@ function responseResult(labels, callback){
         //TODO: for demo constrain:
         if(result.includes('coca')){
             result = 'coca';
+        } else if(result.includes('bottle')){
+            result = 'water';
         } else {
             result = labels[0].desc;
         }
@@ -113,19 +120,27 @@ function responseResult(labels, callback){
 /**
  * Uses the Vision API to detect labels in the given file.
  */
-function detectLabels (inputFile, callback) {
+function detectLabels (inputFile) {
     console.log(`Sending ${inputFile} to google vision API...`)
     // Make a call to the Vision API to detect the labels
-    //console.log('Moking API return:');
-    //return callback('Mock anaylysis results');
     return new Promise((resolve, reject) => {
+        // var mockLabels = [{
+        //     desc: 'coca',
+        //     score: 1.234
+        // },{
+        //     desc: 'coca2',
+        //     score: 2.234
+        // }]
+        // resolve(mockLabels);
+        // return;
+
         vision.detectLabels(inputFile, { verbose: true }, function (err, labels) {
             if (err) {
                 console.error('vision API Error:', err);
                 reject(err);
             } else {
                 console.log('API results:', JSON.stringify(labels, null, 2));
-                resolve(labels)
+                resolve(labels);
             }
         }); 
     })
