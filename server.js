@@ -67,11 +67,13 @@ function handleRequest(request, response){
                             return;
                     }
                     //==================
-                    imgService.reqRecogApi(function(result){
-                        response.writeHead(200, {'content-type': 'text/plain'});
-                        response.write(result);
-                        response.end();
-                    });
+                    setTimeout(function(){
+                        imgService.reqRecogApi(function(result){
+                            response.writeHead(200, {'content-type': 'text/plain'});
+                            response.write(result);
+                            response.end();
+                        });
+                    }, 3000);
                 }
                 
             } catch (error){
