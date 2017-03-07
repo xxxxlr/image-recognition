@@ -1,11 +1,11 @@
 {
   "name": "image-recognition",
   "version": "1.0.0",
-  "description": "- node version: 5.0.0\r - OS: Mac",
+  "description": "- node version: 6.9.2\r - OS: Mac",
   "main": "server.js",
   "dependencies": {
     "gm": "^1.23.0",
-    "google-cloud": "^0.41.2",
+    "@google-cloud/vision": "0.9.0",
     "underscore": "^1.8.3"
   },
   "devDependencies": {},

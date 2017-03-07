@@ -1,8 +1,7 @@
 // Read the file into memory.
 var fs = require('fs');
 var gm = require('gm');
-var gcloud = require('google-cloud');
-var Vision = gcloud.vision;
+var Vision = require('@google-cloud/vision');
 var vision = Vision();
 var _ = require('underscore');
 
@@ -35,7 +34,7 @@ function benchmarkTime(task, timeFrames, taskFrames){
 
 ImgService.prototype = _.extend(ImgService.prototype, {
    
-    reqRecogApi: function(callback){
+    reqRecogApi: function(callback, recogType){
         var requestUniqueId = new Date().getTime();
         console.log(this);
         benchmarkTime('start reqRecogApi', this.timeFrames, this.taskFrames);
@@ -79,8 +78,14 @@ ImgService.prototype = _.extend(ImgService.prototype, {
             return cropImage(cropOptions.imageSrc, cropOptions.imageOutput, cropOptions);
         })
         .then((resizedCropedImgPath) => {
-            benchmarkTime('cropImage', this.timeFrames, this.taskFrames);            
-            return detectLabels(resizedCropedImgPath);
+            benchmarkTime('cropImage', this.timeFrames, this.taskFrames);
+            if(recogType === 'TEXT'){
+                return detectTexts(resizedCropedImgPath);
+            }
+            if(recogType === 'LABEL'){
+                return detectLabels(resizedCropedImgPath);
+            }
+
         })
         .then((detectedResults) => {
             benchmarkTime('detectLabels', this.timeFrames, this.taskFrames);      
@@ -115,7 +120,7 @@ function detectLabels (inputFile, callback) {
     return new Promise((resolve, reject) => {
         vision.detectLabels(inputFile, { verbose: true }, function (err, labels) {
             if (err) {
-                console.error('vision API Error:', err);
+                console.error('vision API detect lable Error:', err);
                 reject(err);
             } else {
                 console.log('API results:', JSON.stringify(labels, null, 2));
@@ -125,6 +130,26 @@ function detectLabels (inputFile, callback) {
     })
     
 }
+
+function detectTexts(inputFile, callback){
+    console.log(`Sending ${inputFile} to google vision API...`)
+    // Make a call to the Vision API to detect the labels
+    //console.log('Moking API return:');
+    //return callback('Mock anaylysis results');
+    return new Promise((resolve, reject) => {
+        vision.detectText(inputFile, { verbose: true }, function (err, labels) {
+            if (err) {
+                console.error('vision API detect text Error:', err);
+                reject(err);
+            } else {
+                console.log('API results:', JSON.stringify(labels, null, 2));
+                resolve(labels)
+            }
+        });
+    })
+
+}
+
 //====================================================
 function getSize(imgPath){
 

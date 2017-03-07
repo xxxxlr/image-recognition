@@ -48,10 +48,12 @@ if(ReturnMockAPI){
         fs.writeFile(outDir + 'bufferedContent.png', bufferedContent, 'binary', function(err){
             //==============
             var imgService = new ImgService({imgPath: outDir + 'bufferedContent.png'});
+            //var type = 'LABEL';
+            var type = 'TEXT';
             imgService.reqRecogApi(function(result){
                 response.write(result);
                 response.end();
-            });
+            }, type);
            //==============
             console.log('bufferedContent error:', err);
         })   
